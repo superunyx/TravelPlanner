@@ -1,23 +1,15 @@
-# Dependencies & Environment
-node_modules/
-dist/
-build/
-.venv/
-venv/
-__pycache__/
+# Python
 *.py[cod]
 *$py.class
 *.so
 .Python
 env/
-build/
+.venv/
+venv/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -25,6 +17,12 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+node_modules/
+dist/
+build/
+frontend/dist/
+frontend/node_modules/
 
 # Testing & Coverage
 .pytest_cache/
