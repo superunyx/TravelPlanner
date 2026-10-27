@@ -4,6 +4,8 @@ from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
+from supabase import Client
+
 from app.core.errors import AppError
 from app.db.trips_repo import (
     create_trip,
@@ -16,7 +18,6 @@ from app.db.trips_repo import (
     upsert_days,
 )
 from app.schemas.db import DayUpdate, DayUpsert, TripCreate, TripUpdate
-from supabase import Client
 
 
 @dataclass

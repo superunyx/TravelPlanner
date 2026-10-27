@@ -3,6 +3,7 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
+
 from app.core.cache import generation_cache
 from app.core.errors import AppError
 from app.schemas.db import TripRecord

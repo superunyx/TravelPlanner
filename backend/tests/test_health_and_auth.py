@@ -1,9 +1,10 @@
 import time
 
 import jwt
+from fastapi.testclient import TestClient
+
 from app.core.config import Settings, get_settings
 from app.main import app
-from fastapi.testclient import TestClient
 
 TEST_JWT_SECRET = "test-supabase-jwt-secret-must-be-at-least-32-bytes"
 

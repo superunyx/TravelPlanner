@@ -1,13 +1,13 @@
 from uuid import uuid4
 
+from fastapi.testclient import TestClient
+
 from app.api.routes.trips import get_itinerary_service
 from app.core.config import Settings, get_settings
 from app.db.client import get_supabase_client
 from app.main import app
 from app.schemas.itinerary import Accommodation, Activity, DayPlan, Itinerary
 from app.services.ai.itinerary_service import ItineraryService
-from fastapi.testclient import TestClient
-
 from tests.test_health_and_auth import TEST_JWT_SECRET, create_token
 from tests.test_trips_repo import FakeSupabaseClient
 
