@@ -1,6 +1,7 @@
 import { useState, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { apiRequest } from "../lib/api";
 import { useUIStore } from "../store/uiStore";
 import { MapPin, Mail, Lock, ArrowRight } from "lucide-react";
 
@@ -15,12 +16,19 @@ export function SignupPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
+      const normalizedEmail = email.trim();
+      await apiRequest("/api/v1/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({ email: normalizedEmail, password }),
+      });
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
         password,
       });
-      if (error) throw error;
-      addToast("success", "Account created! You can now start planning trips.");
+      if (signInError) throw signInError;
+
+      addToast("success", "Account created! Welcome to TravelPlanner AI.");
       navigate("/dashboard");
     } catch (err: unknown) {
       addToast("error", err instanceof Error ? err.message : "Failed to sign up");
@@ -83,7 +91,7 @@ export function SignupPage() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition shadow-lg shadow-indigo-600/20 disabled:opacity-50"
           >
-            {isLoading ? "Creating..." : "Create Account"} <ArrowRight className="w-4 h-4" />
+            {isLoading ? "Creating Account..." : "Create Account"} <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 

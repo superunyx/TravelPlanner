@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { supabase } from "./lib/supabase";
+import { API_BASE_URL } from "./lib/api";
 import { useAuthStore } from "./store/authStore";
 import { useUIStore } from "./store/uiStore";
 
@@ -51,11 +52,6 @@ export function App() {
 
   useEffect(() => {
     // Ping /health on mount; if it takes longer than 2.5s, show friendly wake-up banner
-    const apiBase =
-      import.meta.env.VITE_API_URL ||
-      import.meta.env.VITE_API_BASE_URL ||
-      "http://localhost:8000";
-
     let resolved = false;
     const slowTimer = setTimeout(() => {
       if (!resolved) {
@@ -63,7 +59,7 @@ export function App() {
       }
     }, 2500);
 
-    fetch(`${apiBase}/health`, { method: "GET" })
+    fetch(`${API_BASE_URL}/health`, { method: "GET" })
       .then(() => {
         resolved = true;
         clearTimeout(slowTimer);

@@ -94,6 +94,16 @@ async def get_trip_endpoint(
     return trip
 
 
+@router.get("/{id}/days", response_model=list[DayRecord])
+async def get_trip_days_endpoint(
+    access: Annotated[tuple[TripRecord, UUID], Depends(require_trip_viewer)],
+    client: Annotated[Client, Depends(get_supabase_client)],
+) -> list[DayRecord]:
+    """List all itinerary days for a trip (requires viewer, editor, or owner role)."""
+    trip, user_id = access
+    return get_days(client, trip.id, user_id)
+
+
 @router.patch("/{id}", response_model=TripRecord)
 async def update_trip_endpoint(
     id: UUID,

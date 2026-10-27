@@ -201,9 +201,12 @@ def test_happy_path_trip_lifecycle_and_permissions() -> None:
     assert len(gen_json["days"]) == 1
     assert gen_json["total_estimated_cost"] == 6000.0
 
-    # Verify trip status updated to generated
+    # Verify trip status updated to generated and days list endpoint works
     trip_check = client.get(f"/api/v1/trips/{trip_id}", headers=owner_headers).json()
     assert trip_check["status"] == "generated"
+    days_list_res = client.get(f"/api/v1/trips/{trip_id}/days", headers=collab_headers)
+    assert days_list_res.status_code == 200
+    assert len(days_list_res.json()) == 1
 
     # 5. POST /api/v1/trips/{id}/days/1/regenerate
     regen_res = client.post(

@@ -104,3 +104,22 @@ class TripSummaryResponse(BaseModel):
     budget_status: str
     difference: float
     categories: list[CategoryCostBreakdown]
+
+
+class SignupRequest(BaseModel):
+    email: str = Field(
+        ...,
+        pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+        examples=["traveler@example.com"],
+    )
+    password: str = Field(..., min_length=6, max_length=128)
+
+
+class SignupResponse(BaseModel):
+    email: str
+    confirmed: bool = True
+
+
+class DemoAuthResponse(BaseModel):
+    email: str
+    password: str

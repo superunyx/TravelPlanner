@@ -1,9 +1,12 @@
 import { supabase } from "./supabase";
 
-const API_BASE_URL: string =
+export const API_BASE_URL: string = (
   import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_API_BASE_URL ||
-  "http://localhost:8000";
+  "http://localhost:8000"
+)
+  .trim()
+  .replace(/\/+$/, "");
 
 export interface ApiErrorPayload {
   error: {
@@ -40,7 +43,8 @@ export async function apiRequest<T>(
     headers.set("Authorization", `Bearer ${session.access_token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const response = await fetch(`${API_BASE_URL}${normalizedPath}`, {
     ...options,
     headers,
   });
@@ -60,6 +64,10 @@ export async function apiRequest<T>(
     }
 
     throw new ApiClientError(response.status, errorCode, errorMessage);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return (await response.json()) as T;
