@@ -312,19 +312,28 @@ async def prepare_demo_account_endpoint(
         )
         user_id_str = str(res.user.id)
     except Exception:
-        users = admin_auth.list_users(page=1, per_page=200)
-        target = next((u for u in users if (u.email or "").lower() == DEMO_ACCOUNT_EMAIL), None)
-        if target is None:
+        try:
+            users = admin_auth.list_users(page=1, per_page=200)
+            target = next((u for u in users if (u.email or "").lower() == DEMO_ACCOUNT_EMAIL), None)
+            if target is None:
+                raise AppError(
+                    status_code=500,
+                    code="DEMO_PROVISION_FAILED",
+                    message="Could not provision demo account.",
+                )
+            admin_auth.update_user_by_id(
+                str(target.id),
+                {"email_confirm": True, "password": DEMO_ACCOUNT_PASSWORD},
+            )
+            user_id_str = str(target.id)
+        except AppError:
+            raise
+        except Exception as exc2:
             raise AppError(
                 status_code=500,
                 code="DEMO_PROVISION_FAILED",
-                message="Could not provision demo account.",
-            ) from None
-        admin_auth.update_user_by_id(
-            str(target.id),
-            {"email_confirm": True, "password": DEMO_ACCOUNT_PASSWORD},
-        )
-        user_id_str = str(target.id)
+                message=f"Could not provision demo account: {exc2}",
+            ) from exc2
 
     try:
         _seed_sample_trips_if_empty(client, UUID(user_id_str))

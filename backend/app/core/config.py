@@ -1,6 +1,8 @@
 import sys
 from functools import lru_cache
+from urllib.parse import urlparse
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -32,6 +34,28 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
+
+    @field_validator("supabase_url", mode="after")
+    @classmethod
+    def normalize_supabase_url(cls, v: str) -> str:
+        """Ensure SUPABASE_URL is strictly the project origin (stripping accidental /rest/v1 paths)."""
+        cleaned = v.strip().rstrip("/")
+        parsed = urlparse(cleaned)
+        if parsed.scheme and parsed.netloc:
+            return f"{parsed.scheme}://{parsed.netloc}"
+        return cleaned
+
+    @field_validator(
+        "supabase_anon_key",
+        "supabase_service_role_key",
+        "supabase_jwt_secret",
+        "gemini_api_key",
+        "gemini_model",
+        mode="after",
+    )
+    @classmethod
+    def strip_secret_whitespace(cls, v: str) -> str:
+        return v.strip()
 
     @property
     def cors_origins_list(self) -> list[str]:
