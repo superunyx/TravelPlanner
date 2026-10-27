@@ -39,10 +39,18 @@ class GeminiProvider(LLMProvider):
         }
 
         try:
-            with httpx.Client(timeout=45.0) as client:
+            with httpx.Client(timeout=90.0) as client:
                 resp = client.post(url, json=payload)
-                resp.raise_for_status()
+                if resp.status_code >= 400:
+                    detail = resp.text[:300]
+                    raise AppError(
+                        status_code=502,
+                        code="AI_UPSTREAM_ERROR",
+                        message=f"Gemini API error ({resp.status_code}): {detail}",
+                    )
                 data = resp.json()
+        except AppError:
+            raise
         except httpx.HTTPError as exc:
             raise AppError(
                 status_code=502,
@@ -52,8 +60,15 @@ class GeminiProvider(LLMProvider):
 
         try:
             candidates = data.get("candidates", [])
-            text_part = candidates[0]["content"]["parts"][0]["text"]
-            return json.loads(text_part)  # type: ignore[no-any-return]
+            parts = candidates[0]["content"]["parts"]
+            # Select last text part in case model emits thought parts before JSON
+            text_parts = [p["text"] for p in parts if "text" in p and not p.get("thought")]
+            raw_text = (text_parts[-1] if text_parts else parts[-1]["text"]).strip()
+            if raw_text.startswith("```"):
+                raw_text = raw_text.strip("`")
+                if raw_text.lower().startswith("json"):
+                    raw_text = raw_text[4:].strip()
+            return json.loads(raw_text)  # type: ignore[no-any-return]
         except (IndexError, KeyError, json.JSONDecodeError, TypeError) as exc:
             raise AppError(
                 status_code=502,

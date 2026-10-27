@@ -77,6 +77,20 @@ def create_app() -> FastAPI:
             },
         )
 
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(
+        _request: Request, exc: Exception
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": {
+                    "code": "INTERNAL_ERROR",
+                    "message": f"Server error: {exc!s}",
+                }
+            },
+        )
+
     app.include_router(health_router)
     app.include_router(api_v1_router)
 

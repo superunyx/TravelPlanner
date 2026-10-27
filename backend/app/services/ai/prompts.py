@@ -15,8 +15,68 @@ Rules:
    - 'packed': 5 to 6 activities per day
 4. Include at least one authentic local dining or meal experience per day.
 5. Provide realistic, sequential start_time and end_time (e.g. '09:00', '11:30') with realistic travel_time_from_previous_min.
-6. Return ONLY valid JSON matching the requested schema. No conversational preamble or Markdown fences.
+6. Return ONLY valid JSON matching the exact requested schema keys and enum values. No conversational preamble or Markdown fences.
 """
+
+ITINERARY_SCHEMA_SPEC = """Required JSON Schema (use these EXACT field names and allowed enum strings):
+{
+  "destination": "string",
+  "days": [
+    {
+      "day_number": 1,
+      "date": "YYYY-MM-DD",
+      "theme": "string",
+      "summary": "string",
+      "activities": [
+        {
+          "time_slot": "morning | afternoon | evening | night",
+          "start_time": "HH:MM",
+          "end_time": "HH:MM",
+          "title": "string",
+          "type": "attraction | dining | transport | stay | activity",
+          "description": "string",
+          "location": "string",
+          "est_cost": 0.0,
+          "travel_time_from_previous_min": 0,
+          "tips": "string"
+        }
+      ],
+      "day_total_cost": 0.0
+    }
+  ],
+  "accommodation": {
+    "name": "string",
+    "area": "string",
+    "price_per_night": 0.0,
+    "why": "string"
+  },
+  "total_estimated_cost": 0.0,
+  "budget_status": "under_budget | on_budget | over_budget",
+  "packing_tips": ["string"]
+}"""
+
+DAY_PLAN_SCHEMA_SPEC = """Required JSON Schema (use these EXACT field names and allowed enum strings):
+{
+  "day_number": 1,
+  "date": "YYYY-MM-DD",
+  "theme": "string",
+  "summary": "string",
+  "activities": [
+    {
+      "time_slot": "morning | afternoon | evening | night",
+      "start_time": "HH:MM",
+      "end_time": "HH:MM",
+      "title": "string",
+      "type": "attraction | dining | transport | stay | activity",
+      "description": "string",
+      "location": "string",
+      "est_cost": 0.0,
+      "travel_time_from_previous_min": 0,
+      "tips": "string"
+    }
+  ],
+  "day_total_cost": 0.0
+}"""
 
 
 def build_full_itinerary_prompt(trip: TripRecord) -> str:
@@ -37,6 +97,8 @@ def build_full_itinerary_prompt(trip: TripRecord) -> str:
 - Known Stay/Accommodation: {json.dumps(trip.stay)}
 
 Ensure exactly {num_days} days in the days array, numbered 1 to {num_days}.
+
+{ITINERARY_SCHEMA_SPEC}
 """
 
 
@@ -59,5 +121,7 @@ def build_regenerate_day_prompt(
 Other days context (DO NOT repeat attractions or venues already visited on these days):
 {json.dumps(other_days_summary, indent=2)}
 
-Output ONLY valid JSON for a DayPlan object matching the DayPlan schema with day_number={day_number}.
+Output ONLY valid JSON for a DayPlan object with day_number={day_number}.
+
+{DAY_PLAN_SCHEMA_SPEC}
 """

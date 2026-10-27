@@ -182,3 +182,11 @@ CREATE POLICY trip_members_member_select
 ON public.trip_members
 FOR SELECT
 USING (user_id = auth.uid() OR public.is_trip_member(trip_id));
+
+-- -----------------------------------------------------------------------------
+-- 5. Role Privileges for PostgREST (authenticated & service_role)
+-- -----------------------------------------------------------------------------
+
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.trips, public.itinerary_days, public.trip_members TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.is_trip_owner(UUID), public.is_trip_member(UUID), public.can_edit_trip_days(UUID) TO authenticated, service_role;
