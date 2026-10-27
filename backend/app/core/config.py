@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     ai_provider: str = "gemini"
     gemini_api_key: str = "placeholder-gemini-key"
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.8-flash"
 
     # Rate limiting & quota protection
     max_daily_generations: int = 50
@@ -50,12 +50,19 @@ class Settings(BaseSettings):
         "supabase_service_role_key",
         "supabase_jwt_secret",
         "gemini_api_key",
-        "gemini_model",
         mode="after",
     )
     @classmethod
     def strip_secret_whitespace(cls, v: str) -> str:
         return v.strip()
+
+    @field_validator("gemini_model", mode="after")
+    @classmethod
+    def upgrade_retired_gemini_model(cls, v: str) -> str:
+        cleaned = v.strip().removeprefix("models/")
+        if cleaned in ("gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"):
+            return "gemini-3.8-flash"
+        return cleaned
 
     @property
     def cors_origins_list(self) -> list[str]:
