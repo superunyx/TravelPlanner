@@ -15,8 +15,8 @@ A production-ready full-stack AI web application that crafts structured, optimiz
 
 ## 🚀 Live Demo
 
-- **Live Web App**: [https://your-travel-planner.vercel.app](https://your-travel-planner.vercel.app) *(Deploy URL placeholder)*
-- **Interactive API Docs (Swagger UI)**: [https://travel-planner-api.onrender.com/docs](https://travel-planner-api.onrender.com/docs)
+- **Live Web App**: [https://travelplanner-seven-black.vercel.app](https://travelplanner-seven-black.vercel.app)
+- **Interactive API Docs (Swagger UI)**: [https://travelplanner-id0f.onrender.com/docs](https://travelplanner-id0f.onrender.com/docs)
 - **Instant Demo Account**:
   - Click **"⚡ Try Demo Account"** on the `/login` screen to automatically fill credentials.
   - Or manually sign in with:
